@@ -1,5 +1,8 @@
 node_modules/
+.vercel/
+.tsupgrader/
 .next/
 out/
-.env.local
+.env*
+!.env.example
 *.tsbuildinfo
