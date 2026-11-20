@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { BrandIcon } from "@/components/brand-icon";
 import { PortfolioChat } from "@/components/portfolio-chat";
+import { useRevealProps } from "@/components/motion";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 
 const navKeys: [string, string][] = [
@@ -191,15 +192,9 @@ export function SiteFooter() {
 }
 
 export function SectionHeading({ index, label, title, inverted = false }: { index: string; label: string; title: string; inverted?: boolean }) {
-  const reduceMotion = useReducedMotion();
+  const revealProps = useRevealProps();
   return (
-    <motion.div
-      className={`section-heading ${inverted ? "inverted" : ""}`}
-      initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-      whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-12% 0px -8%" }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <motion.div className={`section-heading ${inverted ? "inverted" : ""}`} {...revealProps}>
       <span className="eyebrow"><b>{index}</b> / {label}</span>
       <h2>{title}</h2>
       <ArrowDownRight className="heading-arrow" strokeWidth={1} />

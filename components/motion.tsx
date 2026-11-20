@@ -3,16 +3,32 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 
+const revealEase = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Shared entrance for content scrolling into view: a short fade and lift that runs once,
+ * starts as soon as the element nears the viewport, and is skipped for reduced motion.
+ */
+export function getRevealProps(reduce: boolean | null, delay = 0) {
+  // Server HTML is rendered with the hidden starting state, so reduced motion snaps to the
+  // final state on hydration instead of skipping the animation props entirely.
+  if (reduce) return { initial: false as const, animate: { opacity: 1, y: 0 }, transition: { duration: 0 } };
+  return {
+    initial: { opacity: 0, y: 16 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "0px 0px -6% 0px" },
+    transition: { duration: 0.5, delay: Math.min(delay, 0.24), ease: revealEase },
+  };
+}
+
+export function useRevealProps(delay = 0) {
+  return getRevealProps(useReducedMotion(), delay);
+}
+
 export function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
-  const reduce = useReducedMotion();
+  const revealProps = useRevealProps(delay);
   return (
-    <motion.div
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: 22 }}
-      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-70px" }}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <motion.div className={className} {...revealProps}>
       {children}
     </motion.div>
   );

@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, ArrowDownRight, ArrowUpRight, MoveUpRight } from "lucide-react";
 import { projects, getLocalizedProject } from "@/data/projects";
 import { SectionHeading } from "@/components/site-shell";
-import { Reveal, HeroReveal, MagneticLink } from "@/components/motion";
+import { Reveal, HeroReveal, MagneticLink, getRevealProps } from "@/components/motion";
 import { Stats } from "@/components/stats";
 import { ContactActions, ContactForm } from "@/components/contact-form";
 import { BrandIcon } from "@/components/brand-icon";
@@ -92,6 +94,8 @@ const educationFr = [
   { date: "2022", title: "Baccalauréat", place: "Sciences Expérimentales · Lycée Bab Elkhadhra · Tunis" },
 ];
 
+const MotionLink = motion.create(Link);
+
 const certifications = [
   "Fundamentals of Deep Learning|NVIDIA",
   "Introduction to Data Engineering|365 Data Science",
@@ -100,6 +104,13 @@ const certifications = [
 
 export default function Home() {
   const { lang, t } = useI18n();
+  const reduceMotion = useReducedMotion();
+  const reveal = (delay = 0) => getRevealProps(reduceMotion, delay);
+
+  // Depth cue: while the hero scrolls away, the portrait trails the copy by a few pixels.
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const portraitDrift = useTransform(heroProgress, [0, 1], [0, reduceMotion ? 0 : 56]);
 
   const skills = lang === "fr" ? skillsFr : skillsEn;
   const experiences = lang === "fr" ? experiencesFr : experiencesEn;
@@ -121,7 +132,7 @@ export default function Home() {
   return (
     <main id="main">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
-      <section className="hero" id="top" aria-labelledby="hero-title">
+      <section className="hero" id="top" aria-labelledby="hero-title" ref={heroRef}>
         <div className="hero-topline">
           <span className="eyebrow">{t("hero.eyebrow")}</span>
         </div>
@@ -165,9 +176,9 @@ export default function Home() {
               <span className="status-light" /> {t("hero.status")}
             </div>
           </div>
-          <div className="hero-portrait-wrap">
+          <motion.div className="hero-portrait-wrap" style={{ y: portraitDrift }}>
             <PortraitFrame />
-          </div>
+          </motion.div>
         </div>
         <div className="hero-bottom">
           <span className="eyebrow">{t("hero.intent")}</span>
@@ -179,13 +190,13 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="stats-band" aria-label="Portfolio highlights">
+      <motion.div className="stats-band" aria-label="Portfolio highlights" {...reveal()}>
         <Stats
           projectCount={projects.length}
           internshipCount={experiences.filter((item) => item.date.includes("STAGE") || item.date.includes("INTERNSHIP")).length}
           certificationCount={certifications.length}
         />
-      </div>
+      </motion.div>
       <SkillsTicker />
 
       <section id="about" className="section section-about">
@@ -237,7 +248,7 @@ export default function Home() {
             <span className="project-count">{t("projects.count")}</span>
           </div>
           <div className="project-list">
-            {projects.map((rawProject) => {
+            {projects.map((rawProject, index) => {
               const project = getLocalizedProject(rawProject, lang);
               const Row = (
                 <>
@@ -271,15 +282,16 @@ export default function Home() {
               );
 
               return project.status === "Case study" ? (
-                <Link
+                <MotionLink
                   href={`/projects/${project.slug}`}
                   className={`project-row ${project.slug === "agriconnect" ? "project-row-featured" : ""}`}
                   key={project.slug}
+                  {...reveal(index * 0.04)}
                 >
                   {Row}
-                </Link>
+                </MotionLink>
               ) : (
-                <article className="project-row project-row-summary" key={project.slug}>
+                <motion.article className="project-row project-row-summary" key={project.slug} {...reveal(index * 0.04)}>
                   {Row}
                   {project.links.githubUrl && (
                     <a
@@ -292,16 +304,16 @@ export default function Home() {
                       <BrandIcon brand="github" />
                     </a>
                   )}
-                </article>
+                </motion.article>
               );
             })}
           </div>
-          <div className="projects-footnote">
+          <motion.div className="projects-footnote" {...reveal()}>
             <span>{t("projects.footnote1")}</span>
             <span>
               {t("projects.footnote2")} <ArrowUpRight size={13} />
             </span>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -382,7 +394,7 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
-          <div className="credentials-grid education-credentials" id="certifications">
+          <motion.div className="credentials-grid education-credentials" id="certifications" {...reveal()}>
             <div className="credentials-block">
               <span className="eyebrow">{t("education.certifications")}</span>
               <ul>
@@ -397,13 +409,13 @@ export default function Home() {
                 })}
               </ul>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="contact" className="contact-section">
         <div className="section-shell">
-          <div className="contact-heading">
+          <motion.div className="contact-heading" {...reveal()}>
             <span className="eyebrow">{t("contact.eyebrow")}</span>
             <h2>
               {t("contact.title1")}
@@ -411,8 +423,8 @@ export default function Home() {
               <span>{t("contact.title2")}</span>
             </h2>
             <p>{t("contact.sub")}</p>
-          </div>
-          <div className="contact-grid">
+          </motion.div>
+          <motion.div className="contact-grid" {...reveal(0.08)}>
             <div className="contact-details">
               <span className="contact-label">{t("contact.bestWay")}</span>
               <a className="email-link" href="mailto:azizbr438@gmail.com" aria-label="Email Ahmed Aziz Barhoumi">
@@ -442,7 +454,7 @@ export default function Home() {
               <span className="contact-location">{t("about.location")}</span>
             </div>
             <ContactForm />
-          </div>
+          </motion.div>
         </div>
       </section>
     </main>
