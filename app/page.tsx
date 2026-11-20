@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useRef } from "react";
+import { motion, useMotionTemplate, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, ArrowDownRight, ArrowUpRight, MoveUpRight } from "lucide-react";
-import { projects, getLocalizedProject } from "@/data/projects";
+import { projects } from "@/data/projects";
 import { SectionHeading } from "@/components/site-shell";
-import { Reveal, HeroReveal, MagneticLink } from "@/components/motion";
+import { Reveal, HeroReveal, MagneticLink, RevealGroup, RevealItem, chipIn, dotIn, flipIn, maskLine, revealItem, slideIn, useGroupReveal } from "@/components/motion";
+import { ChapterRail, ScrollProgress, ScrollWords, SkillsScene, TimelineTrace, pinQuery, useConverge, useHeroRecede, useScrollScene } from "@/components/scroll-scenes";
+import { ProjectShowcase } from "@/components/project-showcase";
 import { Stats } from "@/components/stats";
 import { ContactActions, ContactForm } from "@/components/contact-form";
 import { BrandIcon } from "@/components/brand-icon";
@@ -92,6 +96,19 @@ const educationFr = [
   { date: "2022", title: "Baccalauréat", place: "Sciences Expérimentales · Lycée Bab Elkhadhra · Tunis" },
 ];
 
+
+/**
+ * Scroll-linked entrance for the full-bleed inverted panels: they open from slightly inset with
+ * rounded corners to full width as they move up the viewport. Follows scroll position only.
+ */
+function usePanelOpen(target: React.RefObject<HTMLElement | null>) {
+  const reduce = !useScrollScene();
+  const { scrollYProgress } = useScroll({ target, offset: ["start end", "start 0.3"] });
+  const inset = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [5, 0]);
+  const radius = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [28, 0]);
+  return useMotionTemplate`inset(0% ${inset}% 0% ${inset}% round ${radius}px)`;
+}
+
 const certifications = [
   "Fundamentals of Deep Learning|NVIDIA",
   "Introduction to Data Engineering|365 Data Science",
@@ -100,10 +117,35 @@ const certifications = [
 
 export default function Home() {
   const { lang, t } = useI18n();
+  const heroRef = useRef<HTMLElement>(null);
+  const skillsRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const contactTitleRef = useRef<HTMLHeadingElement>(null);
+  const heroRecede = useHeroRecede(heroRef);
+  const pinned = useScrollScene(pinQuery);
+  const converge = useConverge(contactTitleRef);
+  const skillsClip = usePanelOpen(skillsRef);
+  const contactClip = usePanelOpen(contactRef);
+  const contactHeadingGroup = useGroupReveal(0.1);
+  const certGroup = useGroupReveal(0.12, 0.2);
 
   const skills = lang === "fr" ? skillsFr : skillsEn;
   const experiences = lang === "fr" ? experiencesFr : experiencesEn;
   const education = lang === "fr" ? educationFr : educationEn;
+  const chapters = useMemo(
+    () => [
+      { id: "top", label: "A/B" },
+      { id: "about", label: t("nav.about") },
+      { id: "projects", label: t("nav.projects") },
+      { id: "skills", label: t("skills.eyebrow") },
+      { id: "experience", label: t("nav.experience") },
+      { id: "education", label: t("nav.education") },
+      { id: "contact", label: t("nav.contact") },
+    ],
+    [t],
+  );
+  const contactLines = t("contact.title1").split("\n");
 
   const personSchema = {
     "@context": "https://schema.org",
@@ -121,11 +163,15 @@ export default function Home() {
   return (
     <main id="main">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
-      <section className="hero" id="top" aria-labelledby="hero-title">
+      <ScrollProgress />
+      <ChapterRail chapters={chapters} />
+      <div className="hero-chapter">
+      <section className="hero" id="top" aria-labelledby="hero-title" ref={heroRef}>
+        <motion.span className="hero-dim" aria-hidden="true" style={{ opacity: heroRecede.dim }} />
         <div className="hero-topline">
           <span className="eyebrow">{t("hero.eyebrow")}</span>
         </div>
-        <div className="hero-grid">
+        <motion.div className="hero-grid" style={heroRecede.grid}>
           <div className="hero-copy">
             <h1 id="hero-title">
               <span><HeroReveal delay={0.08}>{t("hero.title1")}</HeroReveal></span>
@@ -168,7 +214,7 @@ export default function Home() {
           <div className="hero-portrait-wrap">
             <PortraitFrame />
           </div>
-        </div>
+        </motion.div>
         <div className="hero-bottom">
           <span className="eyebrow">{t("hero.intent")}</span>
           <a href="#about" className="scroll-cue">
@@ -191,25 +237,23 @@ export default function Home() {
       <section id="about" className="section section-about">
         <div className="section-shell">
           <SectionHeading index="01" label={t("about.eyebrow")} title={t("about.title")} />
-          <div className="about-grid">
-            <Reveal className="about-intro">
+          <RevealGroup className="about-grid" stagger={0.16}>
+            <RevealItem className="about-intro">
               <span className="mono-label">{t("about.mono")}</span>
-              <p>
-                {lang === "fr" ? (
-                  <>J&apos;évolue à la croisée de l&apos;<strong>IA générative et de l&apos;ingénierie des systèmes</strong> — concevant des architectures agentiques, intégrant des modèles de langage et menant des pipelines de machine learning de la théorie au déploiement.</>
-                ) : (
-                  <>I work at the intersection of <strong>generative AI and systems design</strong> — building agentic architectures, integrating language models, and taking machine learning pipelines from idea to deployment.</>
-                )}
-              </p>
-              <p>
-                {lang === "fr" ? (
-                  <>Fort d&apos;un socle solide en mathématiques appliquées, je m&apos;attache à comprendre le comportement des modèles et à garantir la robustesse des systèmes qui les exploitent.</>
-                ) : (
-                  <>Grounded in applied mathematics, I care about understanding how models behave and making sure the systems around them work in practice.</>
-                )}
-              </p>
-            </Reveal>
-            <Reveal delay={0.12} className="about-aside">
+              <ScrollWords segments={lang === "fr" ? [
+                { text: "J'évolue à la croisée de l'" },
+                { text: "IA générative et de l'ingénierie des systèmes", strong: true },
+                { text: " — concevant des architectures agentiques, intégrant des modèles de langage et menant des pipelines de machine learning de la théorie au déploiement." },
+              ] : [
+                { text: "I work at the intersection of " },
+                { text: "generative AI and systems design", strong: true },
+                { text: " — building agentic architectures, integrating language models, and taking machine learning pipelines from idea to deployment." },
+              ]} />
+              <ScrollWords segments={[{ text: lang === "fr"
+                ? "Fort d'un socle solide en mathématiques appliquées, je m'attache à comprendre le comportement des modèles et à garantir la robustesse des systèmes qui les exploitent."
+                : "Grounded in applied mathematics, I care about understanding how models behave and making sure the systems around them work in practice." }]} />
+            </RevealItem>
+            <RevealItem className="about-aside">
               <span className="about-marker">[ BASE / TN ]</span>
               <p>{t("about.aside")}</p>
               <div className="language-list">
@@ -225,10 +269,11 @@ export default function Home() {
               <span className="location-line">
                 {t("about.location")} <MoveUpRight size={13} />
               </span>
-            </Reveal>
-          </div>
+            </RevealItem>
+          </RevealGroup>
         </div>
       </section>
+      </div>
 
       <section id="projects" className="section section-projects">
         <div className="section-shell">
@@ -236,105 +281,53 @@ export default function Home() {
             <SectionHeading index="02" label={t("projects.eyebrow")} title={t("projects.title")} />
             <span className="project-count">{t("projects.count")}</span>
           </div>
-          <div className="project-list">
-            {projects.map((rawProject) => {
-              const project = getLocalizedProject(rawProject, lang);
-              const Row = (
-                <>
-                  <div className="project-row-main">
-                    <span className="project-number">{project.number}</span>
-                    <div>
-                      <h3>{project.title}</h3>
-                      <p>{project.subtitle}</p>
-                    </div>
-                    <span className="project-context">{project.result}</span>
-                    <span className="project-year">{project.year}</span>
-                    <span className="project-arrow" aria-hidden="true">
-                      <ArrowUpRight size={19} />
-                    </span>
-                  </div>
-                  <div className="project-row-expanded">
-                    <div className="project-row-summary-copy">
-                      <p>{project.summary}</p>
-                      <div className="project-tags">
-                        <span className="project-category">{project.category}</span>
-                        <span className="project-status">{project.status === "Case study" ? (lang === "fr" ? "Étude de cas" : "Case study") : (lang === "fr" ? "Résumé" : "Summary only")}</span>
-                      </div>
-                    </div>
-                    <div className="tag-list">
-                      {project.technologies.map((tag) => (
-                        <span key={tag}>{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              );
-
-              return project.status === "Case study" ? (
-                <Link
-                  href={`/projects/${project.slug}`}
-                  className={`project-row ${project.slug === "agriconnect" ? "project-row-featured" : ""}`}
-                  key={project.slug}
-                >
-                  {Row}
-                </Link>
-              ) : (
-                <article className="project-row project-row-summary" key={project.slug}>
-                  {Row}
-                  {project.links.githubUrl && (
-                    <a
-                      className="summary-repo"
-                      href={project.links.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`${project.title} GitHub repository`}
-                    >
-                      <BrandIcon brand="github" />
-                    </a>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-          <div className="projects-footnote">
+          <ProjectShowcase projects={projects} />
+          <Reveal className="projects-footnote">
             <span>{t("projects.footnote1")}</span>
             <span>
               {t("projects.footnote2")} <ArrowUpRight size={13} />
             </span>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="skills-invert" id="skills">
+      <motion.section className={`skills-invert ${pinned ? "is-pinned" : ""}`} id="skills" ref={skillsRef} style={{ clipPath: skillsClip }}>
+        {pinned ? (
+          <SkillsScene groups={skills} heading={<SectionHeading index="03" label={t("skills.eyebrow")} title={t("skills.title")} inverted />} />
+        ) : (
         <div className="section-shell">
           <SectionHeading index="03" label={t("skills.eyebrow")} title={t("skills.title")} inverted />
-          <div className="skills-grid">
+          <RevealGroup className="skills-grid" stagger={0.1}>
             {skills.map((group, index) => (
-              <Reveal className="skill-group" delay={index * 0.05} key={group.title}>
+              <RevealItem className="skill-group" key={group.title}>
                 <span className="skill-index">0{index + 1}</span>
                 <div>
                   <h3>{group.title}</h3>
                   <div className="skill-chips">
                     {group.items.map((item) => (
-                      <span key={item}>{item}</span>
+                      <motion.span key={item} variants={chipIn}>{item}</motion.span>
                     ))}
                   </div>
                 </div>
-              </Reveal>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         </div>
-      </section>
+        )}
+      </motion.section>
 
       <section id="experience" className="section section-experience">
         <div className="section-shell">
           <SectionHeading index="04" label={t("experience.eyebrow")} title={t("experience.title")} />
-          <div className="timeline">
-            {experiences.map((item, index) =>
+          <div className="timeline-scene" ref={timelineRef}>
+          <TimelineTrace target={timelineRef} />
+          <RevealGroup className="timeline" stagger={0.12}>
+            {experiences.map((item) =>
               item.date.includes("LEADERSHIP") || item.date.includes("ENGAGEMENT") ? (
-                <Reveal className="leadership-layout" delay={index * 0.045} key={item.title}>
+                <RevealItem className="leadership-layout" key={item.title}>
+                  <span data-trace className="trace-anchor" />
                   <div className="leadership-entry">
-                    <span className="timeline-dot" />
+                    <motion.span className="timeline-dot" variants={dotIn} />
                     <span className="timeline-date">{item.date}</span>
                     <div className="timeline-copy">
                       <h3>{item.title}</h3>
@@ -342,10 +335,11 @@ export default function Home() {
                       {item.whatIDid && <p className="experience-contribution">{item.whatIDid}</p>}
                     </div>
                   </div>
-                </Reveal>
+                </RevealItem>
               ) : (
-                <Reveal className="timeline-row experience-row" delay={index * 0.045} key={item.title}>
-                  <span className="timeline-dot" />
+                <RevealItem className="timeline-row experience-row" key={item.title}>
+                  <span data-trace className="trace-anchor" />
+                  <motion.span className="timeline-dot" variants={dotIn} />
                   <span className="timeline-date">{item.date}</span>
                   <div className="timeline-copy">
                     <h3>{item.title}</h3>
@@ -359,9 +353,10 @@ export default function Home() {
                     )}
                   </div>
                   {item.href && <ArrowUpRight className="timeline-arrow" size={16} />}
-                </Reveal>
+                </RevealItem>
               )
             )}
+          </RevealGroup>
           </div>
         </div>
       </section>
@@ -369,51 +364,58 @@ export default function Home() {
       <section id="education" className="section section-education">
         <div className="section-shell">
           <SectionHeading index="05" label={t("education.eyebrow")} title={t("education.title")} />
-          <div className="timeline education-timeline">
-            {education.map((item, index) => (
-              <Reveal className="timeline-row" delay={index * 0.045} key={item.title}>
-                <span className="timeline-dot" />
+          <RevealGroup className="timeline education-timeline" stagger={0.12}>
+            {education.map((item) => (
+              <RevealItem className="timeline-row" key={item.title} variants={slideIn}>
+                <motion.span className="timeline-dot" variants={dotIn} />
                 <span className="timeline-date">{item.date}</span>
                 <div className="timeline-copy">
                   <h3>{item.title}</h3>
                   <p>{item.place}</p>
                 </div>
                 <span className="timeline-arrow" aria-hidden="true" />
-              </Reveal>
+              </RevealItem>
             ))}
-          </div>
-          <div className="credentials-grid education-credentials" id="certifications">
+          </RevealGroup>
+          <Reveal className="credentials-grid education-credentials" id="certifications">
             <div className="credentials-block">
               <span className="eyebrow">{t("education.certifications")}</span>
-              <ul>
+              <motion.ul {...certGroup}>
                 {certifications.map((item) => {
                   const [name, issuer] = item.split("|");
                   return (
-                    <li key={name}>
+                    <motion.li key={name} data-reveal variants={flipIn}>
                       <span>{name}</span>
                       <i>{issuer}</i>
-                    </li>
+                    </motion.li>
                   );
                 })}
-              </ul>
+              </motion.ul>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <section id="contact" className="contact-section">
+      <motion.section id="contact" className="contact-section" ref={contactRef} style={{ clipPath: contactClip }}>
         <div className="section-shell">
-          <div className="contact-heading">
-            <span className="eyebrow">{t("contact.eyebrow")}</span>
-            <h2>
-              {t("contact.title1")}
-              <br />
-              <span>{t("contact.title2")}</span>
+          <motion.div className="contact-heading" {...contactHeadingGroup}>
+            <motion.span className="eyebrow" data-reveal variants={revealItem}>{t("contact.eyebrow")}</motion.span>
+            <h2 ref={contactTitleRef}>
+              {contactLines.map((line, index) => (
+                <motion.span className="mask-line" key={index} style={{ x: index % 2 === 0 ? converge.left : converge.right }}>
+                  <motion.span className="mask-line-inner" data-reveal variants={maskLine}>{line}</motion.span>
+                </motion.span>
+              ))}
+              <motion.span className="mask-line" style={{ x: contactLines.length % 2 === 0 ? converge.left : converge.right }}>
+                <motion.span className="mask-line-inner" data-reveal variants={maskLine}>
+                  <span>{t("contact.title2")}</span>
+                </motion.span>
+              </motion.span>
             </h2>
-            <p>{t("contact.sub")}</p>
-          </div>
-          <div className="contact-grid">
-            <div className="contact-details">
+            <motion.p data-reveal variants={revealItem}>{t("contact.sub")}</motion.p>
+          </motion.div>
+          <RevealGroup className="contact-grid" stagger={0.14}>
+            <RevealItem className="contact-details">
               <span className="contact-label">{t("contact.bestWay")}</span>
               <a className="email-link" href="mailto:azizbr438@gmail.com" aria-label="Email Ahmed Aziz Barhoumi">
                 <BrandIcon brand="gmail" />
@@ -440,11 +442,13 @@ export default function Home() {
                 </a>
               </div>
               <span className="contact-location">{t("about.location")}</span>
-            </div>
-            <ContactForm />
-          </div>
+            </RevealItem>
+            <RevealItem>
+              <ContactForm />
+            </RevealItem>
+          </RevealGroup>
         </div>
-      </section>
+      </motion.section>
     </main>
   );
 }

@@ -61,6 +61,7 @@ const translations: Record<Language, Record<string, string>> = {
     "projects.count": "06 / SELECTED",
     "projects.footnote1": "SIX PROJECTS / SIX CASE STUDIES",
     "projects.footnote2": "OPEN A CASE STUDY TO EXPLORE",
+    "projects.viewCase": "View case study",
 
     // Toolkit
     "skills.eyebrow": "TOOLKIT",
@@ -169,6 +170,7 @@ const translations: Record<Language, Record<string, string>> = {
     "projects.count": "06 / SÉLECTIONNÉS",
     "projects.footnote1": "SIX PROJETS / SIX ÉTUDES DE CAS",
     "projects.footnote2": "OUVRIR UNE ÉTUDE DE CAS",
+    "projects.viewCase": "Voir l'étude de cas",
 
     // Toolkit
     "skills.eyebrow": "COMPÉTENCES",

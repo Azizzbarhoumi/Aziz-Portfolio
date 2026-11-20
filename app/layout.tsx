@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg" },
 };
 
+// Without JavaScript the scroll reveals never run, so show everything in its final state.
+const noScriptReveal = "[data-reveal],.section-rule,.timeline-dot,.skill-chips span,.skills-invert,.contact-section,.hero-grid{opacity:1!important;transform:none!important;clip-path:none!important}";
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-theme="dark" suppressHydrationWarning><body className={`${display.variable} ${mono.variable}`}><SiteShell>{children}</SiteShell></body></html>;
+  return <html lang="en" data-theme="dark" suppressHydrationWarning><body className={`${display.variable} ${mono.variable}`}><noscript><style>{noScriptReveal}</style></noscript><SiteShell>{children}</SiteShell></body></html>;
 }

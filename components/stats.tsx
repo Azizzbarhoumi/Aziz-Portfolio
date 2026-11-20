@@ -1,9 +1,13 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { revealItem, useGroupReveal } from "@/components/motion";
 import { useI18n } from "@/lib/i18n";
+import { CountUp } from "@/components/scroll-scenes";
 
 export function Stats({ projectCount, internshipCount, certificationCount }: { projectCount: number; internshipCount: number; certificationCount: number }) {
   const { t, lang } = useI18n();
+  const group = useGroupReveal(0.1);
   const values = [
     { value: String(projectCount), label: t("stats.projects"), href: "#projects" },
     { value: String(internshipCount), label: t("stats.internships"), href: "#experience" },
@@ -11,13 +15,13 @@ export function Stats({ projectCount, internshipCount, certificationCount }: { p
     { value: String(certificationCount), label: t("stats.certifications"), href: "#certifications" },
   ];
   return (
-    <div className="stats-grid">
+    <motion.div className="stats-grid" {...group}>
       {values.map((item) => (
-        <a className="stat-item" href={item.href} key={item.label}>
-          <span className="stat-value">{item.value}</span>
+        <motion.a className="stat-item" href={item.href} key={item.label} data-reveal variants={revealItem}>
+          <span className="stat-value"><CountUp value={item.value} /></span>
           <span className="stat-label">{item.label}</span>
-        </a>
+        </motion.a>
       ))}
-    </div>
+    </motion.div>
   );
 }
