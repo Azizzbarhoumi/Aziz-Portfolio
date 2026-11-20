@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { motion, useMotionTemplate, useScroll, useTransform } from "framer-motion";
-import { ArrowDown, ArrowDownRight, ArrowUpRight, MoveUpRight } from "lucide-react";
+import { ArrowDown, ArrowDownRight, ArrowUpRight, Download, MoveUpRight } from "lucide-react";
 import { projects } from "@/data/projects";
 import { SectionHeading } from "@/components/site-shell";
 import { Reveal, HeroReveal, MagneticLink, RevealGroup, RevealItem, chipIn, dotIn, flipIn, maskLine, revealItem, slideIn, useGroupReveal } from "@/components/motion";
@@ -14,6 +14,7 @@ import { ContactActions, ContactForm } from "@/components/contact-form";
 import { BrandIcon } from "@/components/brand-icon";
 import { SkillsTicker } from "@/components/skills-ticker";
 import { PortraitFrame } from "@/components/portrait-frame";
+import { HeroName } from "@/components/hero-name";
 import { useI18n } from "@/lib/i18n";
 
 const skillsEn = [
@@ -173,6 +174,7 @@ export default function Home() {
         </div>
         <motion.div className="hero-grid" style={heroRecede.grid}>
           <div className="hero-copy">
+            <HeroName />
             <h1 id="hero-title">
               <span><HeroReveal delay={0.08}>{t("hero.title1")}</HeroReveal></span>
               <span><HeroReveal delay={0.2}>{t("hero.title2")}</HeroReveal></span>
@@ -187,12 +189,14 @@ export default function Home() {
                 {t("hero.viewProjects")} <ArrowDownRight size={17} />
               </MagneticLink>
               <MagneticLink
-                className="button button-quiet"
+                className="button button-cv"
                 href={t("nav.cvHref")}
                 download={t("nav.cvFileName")}
                 target="_blank"
               >
-                {t("nav.downloadCV")} <ArrowUpRight size={16} />
+                <span className="button-cv-icon" aria-hidden="true"><Download size={16} strokeWidth={2} /></span>
+                {t("nav.downloadCV")}
+                <span className="button-cv-tag" aria-hidden="true">PDF</span>
               </MagneticLink>
               <MagneticLink
                 className="button button-quiet"

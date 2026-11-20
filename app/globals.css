@@ -458,3 +458,32 @@ html[data-theme="light"] .portrait-shadow{opacity:.2}
   .scene-hub{font-size:12px;padding:8px 11px}
 }
 @media(prefers-reduced-motion:reduce){.scene-hub i{animation:none}.showcase-stage,.showcase-visual{transform:none!important;clip-path:none!important;opacity:1!important}}
+
+/* Hero name: decodes letter by letter on load in the mono face, then a rule draws beneath it. */
+.hero-name{position:relative;display:inline-flex;align-items:center;margin:0 0 24px;padding-bottom:10px;font:500 clamp(15px,1.45vw,20px)/1.2 var(--mono),monospace;letter-spacing:.3em;color:var(--text);white-space:nowrap}
+.hero-name-text span{display:inline-block;min-width:1ch;color:var(--muted);transition:color .25s}
+.hero-name-text span.is-locked{color:var(--text)}
+.hero-name-caret{display:inline-block;width:.6em;height:1.05em;margin-left:.15em;background:var(--text);opacity:0}
+.hero-name.is-animated .hero-name-caret{animation:name-caret .9s steps(1) infinite}
+.hero-name.is-animated.is-done .hero-name-caret{animation:name-caret .9s steps(1) 3,name-caret-out .3s ease 2.7s forwards}
+.hero-name-rule{position:absolute;left:0;right:.3em;bottom:0;height:1px;background:linear-gradient(90deg,var(--text),color-mix(in srgb,var(--text) 10%,transparent));transform-origin:0 50%}
+.hero-name.is-animated .hero-name-rule{animation:name-rule 1.1s cubic-bezier(.22,1,.36,1) .35s both}
+@keyframes name-caret{0%{opacity:1}50%{opacity:0}}
+@keyframes name-caret-out{to{opacity:0;width:0;margin-left:0}}
+@keyframes name-rule{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:700px){.hero-name{font-size:13px;letter-spacing:.22em;margin-bottom:16px}}
+
+/* Download CV: the standout secondary action, with an inverted icon chip, file tag, sheen and an attention pulse. */
+.button-cv{position:relative;isolation:isolate;overflow:hidden;gap:12px;padding:0 12px 0 7px;color:var(--text);border-color:var(--text);background:color-mix(in srgb,var(--text) 7%,transparent);box-shadow:0 0 0 0 transparent;animation:cv-pulse 2.4s ease-out 1.6s 3}
+.button-cv:after{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:0;width:60%;background:linear-gradient(100deg,transparent,color-mix(in srgb,var(--text) 22%,transparent),transparent);transform:translateX(-130%);animation:cv-sheen 5s ease-in-out 2s infinite;pointer-events:none}
+.button-cv-icon{display:grid;place-items:center;width:29px;height:29px;background:var(--text);color:var(--bg);transition:background .2s,color .2s}
+.button-cv-icon svg{transition:transform .25s}
+.button-cv-tag{font:600 10px/1 var(--mono),monospace;letter-spacing:.08em;padding:4px 5px;border:1px solid var(--line-strong);color:var(--muted);transition:border-color .2s,color .2s}
+.button-cv:hover,.button-cv:focus-visible{background:var(--text);color:var(--bg);border-color:var(--text)}
+.button-cv:hover .button-cv-icon,.button-cv:focus-visible .button-cv-icon{background:var(--bg);color:var(--text)}
+.button-cv:hover .button-cv-icon svg,.button-cv:focus-visible .button-cv-icon svg{animation:cv-drop .7s ease-in-out infinite}
+.button-cv:hover .button-cv-tag,.button-cv:focus-visible .button-cv-tag{border-color:color-mix(in srgb,var(--bg) 40%,transparent);color:var(--bg)}
+@keyframes cv-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--text) 45%,transparent)}100%{box-shadow:0 0 0 16px transparent}}
+@keyframes cv-sheen{0%{transform:translateX(-130%)}35%,100%{transform:translateX(230%)}}
+@keyframes cv-drop{0%,100%{transform:translateY(-1px)}50%{transform:translateY(3px)}}
+@media(prefers-reduced-motion:reduce){.button-cv,.button-cv:after,.button-cv-icon svg,.hero-name-caret,.hero-name-rule{animation:none!important}.button-cv:after{display:none}}
