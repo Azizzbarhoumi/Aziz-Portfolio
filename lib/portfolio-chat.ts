@@ -7,6 +7,12 @@ export type ChatMessage = { role: "user" | "assistant"; content: string };
 export const REFUSAL_ANSWER = "That isn't in Aziz's portfolio. You can ask him directly at azizbr438@gmail.com.";
 export const DEFAULT_MODEL = "qwen3.8-flash";
 export const DEFAULT_BASE_URL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1";
+export const DEFAULT_GEMINI_CHAT_MODEL = "gemini-3.5-flash"
+/** Tried in order when the main model is overloaded or retired. */
+/** Gemini writes longer replies than Qwen, so it gets more room before a reply is cut off. */
+export const GEMINI_MAX_OUTPUT_TOKENS = 4096;
+export const GEMINI_CHAT_FALLBACK_MODELS = ["gemini-3.8-flash", "gemini-flash-lite-latest"];;
+export type ChatProvider = "gemini" | "qwen";
 export const TEMPERATURE = 0.15;
 export const MAX_OUTPUT_TOKENS = 1000;
 export const DEFAULT_EMBEDDING_PROVIDER = "gemini" as const;
@@ -39,7 +45,7 @@ export function buildCurrentQuestion(messages: ChatMessage[]) {
 }
 
 export function loadAzizKnowledge() {
-  return readFileSync(path.join(process.cwd(), "knowledge", "aziz.md"), "utf8").trim();
+  return readFileSync(path.join(process.cwd(), "knowledge", "aziz.md"), "utf8").replace(/\r\n/g, "\n").trim();
 }
 
 export function buildKnowledgeChunks(knowledge = loadAzizKnowledge(), maxChars = CHUNK_MAX_CHARS): KnowledgeChunk[] {
@@ -273,7 +279,9 @@ export function buildQwenPayload(messages: ChatMessage[], context: string, model
   };
 }
 
-export async function getPortfolioAnswer(messages: ChatMessage[], options: { apiKey?: string; embeddingApiKey?: string; embeddingProvider?: EmbeddingProvider; fetcher?: typeof fetch; knowledge?: string; model?: string; baseUrl?: string; embeddingModel?: string } = {}) {
+export async function getPortfolioAnswer(messages: ChatMessage[], options: { chatProvider?: ChatProvider; geminiApiKey?: string; apiKey?: string; embeddingApiKey?: string; embeddingProvider?: EmbeddingProvider; fetcher?: typeof fetch; knowledge?: string; model?: string; baseUrl?: string; embeddingModel?: string } = {}) {
+  const chatProvider: ChatProvider = options.chatProvider ?? (process.env.CHAT_PROVIDER === "qwen" ? "qwen" : "gemini");
+  if (chatProvider === "gemini") return getGeminiAnswer(messages, options);
   const apiKey = options.apiKey ?? process.env.QWEN_API_KEY;
   if (!apiKey) throw new Error("QWEN_API_KEY is not configured");
   const knowledge = options.knowledge ?? loadAzizKnowledge();
@@ -317,4 +325,52 @@ export async function getPortfolioAnswer(messages: ChatMessage[], options: { api
   if (!answer) throw new Error("Qwen returned an empty answer");
   const sources = [...new Map(chunks.map(({ section, score }) => [section, { ...sectionSource(section), score }])).values()];
   return { answer, payload, finishReason: choice?.finish_reason, usageMetadata: result.usage, sources };
+}
+
+/** Gemini writes the reply from the same retrieved passages and system prompt used for Qwen. */
+async function getGeminiAnswer(messages: ChatMessage[], options: { geminiApiKey?: string; fetcher?: typeof fetch; knowledge?: string; model?: string; baseUrl?: string; embeddingModel?: string }) {
+  const apiKey = options.geminiApiKey ?? process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
+  const knowledge = options.knowledge ?? loadAzizKnowledge();
+  const fetcher = options.fetcher ?? fetch;
+  const question = buildCurrentQuestion(messages).slice(0, 2400);
+  const chunks = await retrieveKnowledge(question, knowledge, { apiKey, model: options.embeddingModel, provider: "gemini", fetcher });
+  if (!chunks.length) return { answer: REFUSAL_ANSWER, payload: undefined, sources: [] as { title: string; source: string; href: string; score: number }[], finishReason: "retrieval_no_match" };
+  const context = chunks.map(({ id, section, text }) => `[${id} · ${section}]\n${text}`).join("\n\n");
+  const model = options.model ?? process.env.GEMINI_CHAT_MODEL ?? DEFAULT_GEMINI_CHAT_MODEL;
+  if (!/^[a-zA-Z0-9._-]+$/.test(model)) throw new Error("GEMINI_CHAT_MODEL contains invalid characters");
+  const payload = {
+    systemInstruction: { parts: [{ text: buildSystemPrompt(context) }] },
+    contents: [{ role: "user", parts: [{ text: question }] }],
+    generationConfig: { temperature: TEMPERATURE, maxOutputTokens: GEMINI_MAX_OUTPUT_TOKENS },
+  };
+  const models = [model, ...GEMINI_CHAT_FALLBACK_MODELS.filter((name) => name !== model)];
+  let response!: Response;
+  for (let attempt = 0; attempt < models.length; attempt += 1) {
+    response = await fetcher(`https://generativelanguage.googleapis.com/v1beta/models/${models[attempt]}:generateContent`, {
+      method: "POST",
+      headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(60_000),
+      body: JSON.stringify(payload),
+    });
+    if (response.ok || ![404, 429, 500, 503].includes(response.status)) break;
+  }
+  if (!response.ok) {
+    let providerMessage = "";
+    try {
+      const failure = await response.json() as { error?: { message?: string } };
+      providerMessage = failure.error?.message?.slice(0, 300) ?? "";
+    } catch { /* Keep the HTTP status if the provider response is not JSON. */ }
+    throw new Error(`Gemini chat request failed with status ${response.status}${providerMessage ? `: ${providerMessage}` : ""}`);
+  }
+  const result = await response.json() as {
+    candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
+    usageMetadata?: Record<string, number>;
+  };
+  const candidate = result.candidates?.[0];
+  const answer = candidate?.content?.parts?.map(({ text }) => text ?? "").join("").trim();
+  if (!answer) throw new Error("Gemini returned an empty answer");
+  const finishReason = candidate?.finishReason === "MAX_TOKENS" ? "length" : candidate?.finishReason === "STOP" ? "stop" : candidate?.finishReason?.toLowerCase();
+  const sources = [...new Map(chunks.map(({ section, score }) => [section, { ...sectionSource(section), score }])).values()];
+  return { answer, payload, finishReason, usageMetadata: result.usageMetadata, sources };
 }

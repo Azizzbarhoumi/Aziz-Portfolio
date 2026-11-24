@@ -23,7 +23,8 @@ const refusalQuestions = [
 ];
 
 const knowledge = loadAzizKnowledge();
-if (!process.env.QWEN_API_KEY) throw new Error("QWEN_API_KEY must be set in .env.local or the environment to run the live evaluation.");
+const chatKeyName = process.env.CHAT_PROVIDER === "qwen" ? "QWEN_API_KEY" : "GEMINI_API_KEY";
+if (!process.env[chatKeyName]) throw new Error(`${chatKeyName} must be set in .env.local or the environment to run the live evaluation.`);
 
 const customQuestionArg = process.argv.find((argument) => argument.startsWith("--question="));
 const customQuestion = customQuestionArg?.slice("--question=".length);
@@ -51,7 +52,7 @@ for (const [index, item] of casesToRun.entries()) {
   } catch (error) {
     const causeCode = error && typeof error === "object" && "cause" in error && error.cause && typeof error.cause === "object" && "code" in error.cause ? String(error.cause.code) : "";
     const reason = `${error instanceof Error ? error.message : "unknown error"}${causeCode ? ` (${causeCode})` : ""}`;
-    console.error(`\nUNAVAILABLE — live Qwen evaluation stopped on question ${index + 1}/${casesToRun.length}: ${reason}`);
+    console.error(`\nUNAVAILABLE — live chat evaluation stopped on question ${index + 1}/${casesToRun.length}: ${reason}`);
     process.exitCode = 1;
     break;
   }
@@ -70,8 +71,8 @@ for (const [index, item] of casesToRun.entries()) {
   console.log(`\n[${index + 1}/${casesToRun.length}] ${issues.length ? "FAIL" : "PASS"} — ${item.question}${issues.length ? `\nChecks: ${issues.join(" ")}` : ""}\nRetrieved: ${sources?.map(({ source, score }) => `${source} (${score.toFixed(3)})`).join(", ") || "no relevant passage"}\nFinish: ${finishReason ?? "not provided"}; tokens: ${usageMetadata?.totalTokenCount ?? "not provided"} (thinking ${usageMetadata?.thoughtsTokenCount ?? "not provided"})\n${answer}`);
 }
 
-if (completedCases === casesToRun.length && failedCases === 0) console.log(`\nPASS — ${casesToRun.length} live Qwen evaluation cases.`);
+if (completedCases === casesToRun.length && failedCases === 0) console.log(`\nPASS — ${casesToRun.length} live chat evaluation cases.`);
 else if (completedCases === casesToRun.length) {
-  console.error(`\nFAIL — ${failedCases}/${casesToRun.length} live Qwen evaluation cases.`);
+  console.error(`\nFAIL — ${failedCases}/${casesToRun.length} live chat evaluation cases.`);
   process.exitCode = 1;
 }

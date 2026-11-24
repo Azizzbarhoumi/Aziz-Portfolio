@@ -153,7 +153,7 @@ test("the route and evaluator share the same Qwen completion function", async ()
     return { ok: true, json: async () => ({ choices: [{ message: { content: "Grounded answer." }, finish_reason: "stop" }] }) };
   };
   const knowledge = "## Projects\n\n### NeuroLearn AI\n\nAdaptive platform built with Flask.";
-  const result = await getPortfolioAnswer([{ role: "user", content: "What does NeuroLearn use?" }], { apiKey: "test-only", fetcher, knowledge, embeddingModel: "test-embeddings", embeddingProvider: "qwen" });
+  const result = await getPortfolioAnswer([{ role: "user", content: "What does NeuroLearn use?" }], { chatProvider: "qwen", apiKey: "test-only", fetcher, knowledge, embeddingModel: "test-embeddings", embeddingProvider: "qwen" });
   assert.equal(result.answer, "Grounded answer.");
   assert.equal(result.finishReason, "stop");
   const chatRequest = requests.find(({ url }) => url.endsWith("/chat/completions"));
@@ -176,7 +176,7 @@ test("the answer function refuses before generation when no chunk is relevant", 
     return { ok: true, json: async () => ({ data: inputs.map((value, index) => ({ index, embedding: /outside-topic/i.test(value) ? [0, 1, 0] : [1, 0, 0] })) }) };
   };
   const result = await getPortfolioAnswer([{ role: "user", content: "An outside-topic question" }], {
-    apiKey: "test-only", fetcher, knowledge: "## Skills\n\nPython and Java.", embeddingModel: "refusal-embeddings", embeddingProvider: "qwen",
+    chatProvider: "qwen", apiKey: "test-only", fetcher, knowledge: "## Skills\n\nPython and Java.", embeddingModel: "refusal-embeddings", embeddingProvider: "qwen",
   });
   assert.equal(result.answer, REFUSAL_ANSWER);
   assert.equal(result.finishReason, "retrieval_no_match");

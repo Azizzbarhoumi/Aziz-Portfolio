@@ -56,12 +56,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ answer, sources: sources?.map(({ title, source, href }) => ({ title, source, href })) ?? [] });
   } catch (error) {
     const errorName = error instanceof Error ? error.name : "unknown error";
-    console.error("Qwen chat request failed", errorName);
+    console.error("Chat request failed", errorName, error instanceof Error ? error.message.slice(0, 200) : "");
     if (error instanceof Error && error.message === "QWEN_API_KEY is not configured") {
       return NextResponse.json({ error: "The assistant is not configured yet. Please contact Aziz by email instead." }, { status: 503 });
     }
     if (error instanceof Error && error.message === "GEMINI_API_KEY is not configured") {
       return NextResponse.json({ error: "Portfolio search is not configured yet. Please try again later." }, { status: 503 });
+    }
+    if (error instanceof Error && /(?:Qwen|Gemini chat) request failed with status (?:429|403)\b/.test(error.message)) {
+      return NextResponse.json({ error: "The assistant has reached its current usage limit. Please try again later." }, { status: 429 });
+    }
+    if (error instanceof Error && /Gemini chat request failed with status 503/.test(error.message)) {
+      return NextResponse.json({ error: "The assistant is temporarily busy. Please try again shortly." }, { status: 503 });
     }
     if (error instanceof Error && /Qwen request failed with status 429/.test(error.message)) {
       return NextResponse.json({ error: "The assistant has reached its current usage limit. Please try again later." }, { status: 429 });
