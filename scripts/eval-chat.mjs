@@ -7,7 +7,7 @@ const passingQuestions = [
   { question: "What does Aziz study?", terms: ["ENSIT", "Applied Mathematics and Modelling", "Data Science"] },
   { question: "What is AgriMent?", terms: ["Talan", "second place", "generative AI", "VLM", "FastAPI"] },
   { question: "What stack does NeuroLearn use?", terms: ["Flask", "React", "TypeScript", "TailwindCSS", "Groq", "Mistral", "OpenAI Whisper"] },
-  { question: "What projects has Aziz worked on?", terms: ["AgriConnect", "Data Extraction Tool at ProVerdy", "NeuroLearn AI", "CardioAgent-Ops", "FakeGuard AI", "Emotion Recognition from Speech"] },
+  { question: "What projects has Aziz worked on?", terms: ["AgriConnect", "Data Extraction Tool at ProVerdy", "NeuroLearn AI", "CardioAgent-Ops", "MCP-NativeAgent", "FakeGuard AI", "Emotion Recognition from Speech"] },
   { question: "What experience and leadership does Aziz have?", terms: ["AgriConnect", "Data Extraction Tool at ProVerdy", "Human Resources Manager", "IEEE ENSIT"] },
   { question: "Which models were compared in FakeGuard?", terms: ["BERT", "CNN-LSTM", "classical baselines", "WELFake"] },
   { question: "What certifications does he have?", terms: ["Fundamentals of Deep Learning", "NVIDIA", "Introduction to Data Engineering", "Introduction to AI", "365 Data Science"] },
