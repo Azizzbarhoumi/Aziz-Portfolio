@@ -15,7 +15,7 @@ export const RETRIEVAL_TOP_K = 5;
 export const RETRIEVAL_MIN_SCORE = 0.2;
 const RETRIEVAL_SCORE_MARGIN = 0.08;
 const CHUNK_MAX_CHARS = 1100;
-const PROJECT_SECTION_PATTERN = /agriconnect|agriment|neurolearn|city brain|fakeguard|emotion recognition|proverdy|data extraction/i;
+const PROJECT_SECTION_PATTERN = /agriconnect|agriment|neurolearn|cardioagent|fakeguard|emotion recognition|proverdy|data extraction/i;
 
 type KnowledgeChunk = { id: string; section: string; parentSection?: string; text: string };
 type EmbeddedChunk = KnowledgeChunk & { embedding: number[] };
@@ -187,7 +187,7 @@ export async function retrieveKnowledge(question: string, knowledge = loadAzizKn
     || /quels sont (?:ses|les|des) projets/i.test(query);
   const mentionsSpecificProject = documents.some(({ section }) => {
     if (!PROJECT_SECTION_PATTERN.test(section)) return false;
-    const projectKey = section.toLowerCase().match(/agriconnect|agriment|neurolearn|city brain|fakeguard|emotion recognition|proverdy|data extraction/);
+    const projectKey = section.toLowerCase().match(/agriconnect|agriment|neurolearn|cardioagent|fakeguard|emotion recognition|proverdy|data extraction/);
     return projectKey ? query.includes(projectKey[0]) : false;
   });
   const asksForExperienceOverview = /\b(?:experience|internships?|work history|career background|professional background|expériences?|stages?|parcours|antécédents)\b/i.test(query)
@@ -201,7 +201,7 @@ export async function retrieveKnowledge(question: string, knowledge = loadAzizKn
     if (/\b(?:contact|email|linkedin|reach|contacter|coordonnées|joindre)\b/i.test(query) && target.includes("contact")) return 0.16;
     if (/\b(?:languages?|native|fluent|langues?|arabe|anglais|français)\b/i.test(query) && target.includes("language")) return 0.16;
     const projectWords = target.match(/[a-z0-9]+/g)?.filter((word) => word.length > 3) ?? [];
-    if (projectWords.some((word) => query.includes(word)) && /agriconnect|agriment|neurolearn|city brain|fakeguard|emotion recognition|proverdy/i.test(target)) return 0.16;
+    if (projectWords.some((word) => query.includes(word)) && /agriconnect|agriment|neurolearn|cardioagent|fakeguard|emotion recognition|proverdy/i.test(target)) return 0.16;
     return 0;
   };
   const ranked = documents
@@ -248,7 +248,7 @@ function sectionSource(section: string) {
   const name = section.toLowerCase();
   if (name.includes("agriconnect") || name.includes("agriment")) return { title: "AgriConnect", source: "AgriConnect", href: "/projects/agriconnect" };
   if (name.includes("neurolearn")) return { title: "NeuroLearn AI", source: "NeuroLearn AI", href: "/projects/neurolearn-ai" };
-  if (name.includes("city brain")) return { title: "City Brain Convergence", source: "City Brain", href: "/projects/city-brain-convergence" };
+  if (name.includes("cardioagent")) return { title: "CardioAgent-Ops", source: "CardioAgent-Ops", href: "/projects/cardioagent-ops" };
   if (name.includes("fakeguard")) return { title: "FakeGuard AI", source: "FakeGuard AI", href: "/projects/fakeguard-ai" };
   if (name.includes("emotion recognition")) return { title: "Emotion Recognition from Speech", source: "Emotion Recognition", href: "/projects/emotion-recognition-speech" };
   if (name.includes("proverdy") || name.includes("data extraction")) return { title: "Data Extraction Tool", source: "ProVerdy", href: "/projects/proverdy-data-extraction" };

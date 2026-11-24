@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import { renderAssistantMarkdown } from "../lib/chat-markdown.ts";
 
 test("assistant replies render emphasis, responsive tables, and br tags safely", () => {
-  const reply = `**Project Highlights**\n\n| Project | Role | Key Achievements |\n| --- | --- | --- |\n| City Brain | Agentic AI | Detect accidents<br>Trigger actuators |`;
+  const reply = `**Project Highlights**\n\n| Project | Role | Key Achievements |\n| --- | --- | --- |\n| CardioAgent-Ops | MLOps | Benchmark models<br>Serve with Docker |`;
   const html = renderAssistantMarkdown(reply);
 
   assert.match(html, /<strong>Project Highlights<\/strong>/);
   assert.match(html, /<div class="chat-table-wrap"><table>/);
-  assert.match(html, /<td>Detect accidents<br>Trigger actuators<\/td>/);
+  assert.match(html, /<td>Benchmark models<br>Serve with Docker<\/td>/);
 });
 
 test("orphan markdown markers from an incomplete model response are not shown literally", () => {

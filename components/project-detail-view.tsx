@@ -29,7 +29,7 @@ export function ProjectDetailView({
         </Link>
         <div className="detail-kicker">
           <span>
-            {lang === "fr" ? "PROJET" : "PROJECT"} / {project.number} · {project.category} · {project.status}
+            {lang === "fr" ? "PROJET" : "PROJECT"} / {project.number} · {project.category} · {project.status}{project.inProgress ? (lang === "fr" ? " · En cours" : " · In progress") : ""}
           </span>
           <span>{project.year}</span>
         </div>

@@ -91,7 +91,7 @@ const educationEn = [
 ];
 
 const educationFr = [
-  { date: "2026 — 2027", title: "Master de recherche en Data Science", place: "ENSIT · École Nationale Supérieure d'Ingénieurs de Tunis" },
+  { date: "2026 — 2027", title: "Master de recherche en Science des Données", place: "ENSIT · École Nationale Supérieure d'Ingénieurs de Tunis" },
   { date: "2024 — 2027", title: "Diplôme d’ingénieur en Mathématiques Appliquées & Modélisation", place: "ENSIT · École Nationale Supérieure d'Ingénieurs de Tunis" },
   { date: "2022 — 2024", title: "Cycle préparatoire · Physique-Chimie", place: "Tunis" },
   { date: "2022", title: "Baccalauréat", place: "Sciences Expérimentales · Lycée Bab Elkhadhra · Tunis" },

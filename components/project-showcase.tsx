@@ -97,7 +97,7 @@ function ProjectChapter({
           variants={{ hidden: {}, shown: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } }}
         >
           <motion.p className="showcase-label" variants={item}>
-            <b>{project.number}</b> / {String(total).padStart(2, "0")} · {project.category} · {project.year}
+            <b>{project.number}</b> / {String(total).padStart(2, "0")} · {project.category} · {project.year}{project.inProgress ? <> · <span className="badge-in-progress">{lang === "fr" ? "En cours" : "In progress"}</span></> : null}
           </motion.p>
           <h3 id={`project-${project.slug}-title`} className="showcase-title">
             {titleLines.map((line) => (
@@ -139,8 +139,8 @@ function ProjectScene({ project, progress }: { project: Project; progress: Motio
       return <AgriScene project={project} progress={progress} />;
     case "neurolearn-ai":
       return <ZoomScene project={project} progress={progress} />;
-    case "city-brain-convergence":
-      return <NetworkScene project={project} progress={progress} />;
+    case "cardioagent-ops":
+      return <WaveScene project={project} progress={progress} />;
     case "fakeguard-ai":
       return <ScanScene project={project} progress={progress} />;
     case "emotion-recognition-speech":
@@ -237,7 +237,7 @@ function NetworkNode({ progress, index, spot, label }: { progress: MotionValue<n
   );
 }
 
-/** City Brain: the project's own technologies drawn as an agent network around a central hub. */
+/** Agent network: the project's own technologies drawn around a central hub (currently unused). */
 function NetworkScene({ project, progress }: { project: Project; progress: MotionValue<number> }) {
   const [hub, ...others] = project.technologies;
   const nodes = others.slice(0, nodeSpots.length);
@@ -298,7 +298,7 @@ function WaveTag({ progress, index, total, label }: { progress: MotionValue<numb
   return <motion.li style={{ opacity }}>{label}</motion.li>;
 }
 
-/** Emotion recognition: an abstract waveform rises, labelled with the project's actual pipeline. */
+/** Emotion recognition and CardioAgent-Ops: an abstract waveform rises, labelled with the project's actual pipeline. */
 function WaveScene({ project, progress }: { project: Project; progress: MotionValue<number> }) {
   return (
     <div className="scene scene-wave">

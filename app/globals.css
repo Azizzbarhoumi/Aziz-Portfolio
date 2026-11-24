@@ -250,32 +250,30 @@ html[data-theme="light"]{--dim:#62625f}
 .mobile-lang-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);font:500 12px var(--mono);cursor:pointer;border-radius:4px}
 .mobile-social-row{display:flex;align-items:center;gap:18px;margin-top:6px}
 
-/* Hero portrait: the real photo with feathered edges (no frame), layered depth, pointer tilt and a scroll lean. */
-.hero-portrait-wrap:before{content:none}
-.portrait-composition{position:relative;isolation:isolate}
-.portrait-halo{position:absolute;z-index:-2;left:50%;top:40%;width:92%;aspect-ratio:1;margin:-46% 0 0 -46%;pointer-events:none}
-.portrait-halo>span{position:absolute;border-radius:50%}
-.portrait-halo-glow{inset:-6%;background:radial-gradient(circle at 50% 44%,color-mix(in srgb,var(--text) 30%,transparent),color-mix(in srgb,var(--text) 8%,transparent) 42%,transparent 68%);filter:blur(6px)}
-.portrait-halo-ring{inset:0;border:1.5px solid color-mix(in srgb,var(--text) 62%,transparent);box-shadow:0 0 60px color-mix(in srgb,var(--text) 22%,transparent),inset 0 0 60px color-mix(in srgb,var(--text) 12%,transparent)}
-.portrait-halo-ring-outer{inset:-10%;border:1px dashed color-mix(in srgb,var(--text) 32%,transparent);box-shadow:none}
-.portrait-composition.is-animated .portrait-halo-ring-outer{animation:portrait-orbit 60s linear infinite}
-@keyframes portrait-orbit{to{transform:rotate(360deg)}}
-.portrait-shadow{position:absolute;z-index:-1;left:10%;right:10%;bottom:-4%;height:14%;border-radius:50%;background:#000;opacity:.8;filter:blur(22px);pointer-events:none}
-html[data-theme="light"] .portrait-shadow{opacity:.2}
-.portrait-lift,.portrait-float{position:relative}
-.portrait-stage{position:relative;width:100%;aspect-ratio:4/5.1;transform-style:preserve-3d;will-change:transform}
-.portrait-photo{position:relative;width:100%;height:100%;-webkit-mask-image:radial-gradient(ellipse 62% 60% at 50% 42%,#000 62%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 14%,#000 70%,transparent 99%),linear-gradient(to right,transparent 0,#000 15%,#000 85%,transparent 100%);-webkit-mask-composite:source-in,source-in;mask-image:radial-gradient(ellipse 62% 60% at 50% 42%,#000 62%,transparent 100%),linear-gradient(to bottom,transparent 0,#000 14%,#000 70%,transparent 99%),linear-gradient(to right,transparent 0,#000 15%,#000 85%,transparent 100%);mask-composite:intersect}
-.portrait-image{object-fit:cover;object-position:center 31%;filter:grayscale(1) contrast(1.24) brightness(1.06)}
-.portrait-light{position:absolute;inset:0;mix-blend-mode:soft-light;opacity:0;transition:opacity .6s ease;pointer-events:none}
-.portrait-composition[data-active="true"] .portrait-light{opacity:1}
-.portrait-composition.is-animated{animation:portrait-in 1.3s cubic-bezier(.22,1,.36,1) .15s both}
-.portrait-composition.is-animated .portrait-float{animation:portrait-float 6.5s ease-in-out infinite}
-.portrait-composition[data-active="true"] .portrait-float{animation-play-state:paused}
-@media(hover:none),(pointer:coarse){.portrait-composition.is-animated .portrait-float{animation-duration:9s}}
-@keyframes portrait-in{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:none}}
-@keyframes portrait-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-7px,0)}}
-@media(min-width:901px){.hero-portrait-wrap{max-width:500px}.portrait-composition{scale:1.06;transform-origin:70% 50%}}
-@media(prefers-reduced-motion:reduce){.portrait-composition,.portrait-float,.portrait-halo-ring-outer{animation:none!important}.portrait-stage,.portrait-shadow,.portrait-halo,.portrait-lift{transform:none!important;will-change:auto}.portrait-light{display:none}}
+/* Restore the framed, grayscale editorial portrait presentation. */
+.hero-portrait-wrap:before{content:"";position:absolute;z-index:-1;inset:-12% -18% -5%;background:radial-gradient(ellipse at 55% 48%,color-mix(in srgb,var(--text) 9%,transparent),transparent 70%);pointer-events:none}
+.portrait-composition{position:relative;padding-top:19px}
+.portrait-overline{display:block;margin:0 0 9px;color:var(--muted);font:9px/1.4 var(--mono),monospace;letter-spacing:.12em}
+.portrait-stage{aspect-ratio:4/5.1;overflow:visible;perspective:1000px;isolation:isolate}
+.portrait-frame{position:relative;width:100%;height:100%;overflow:hidden;aspect-ratio:auto;border:1px solid color-mix(in srgb,var(--text) 42%,transparent);border-radius:0;background:#222;box-shadow:0 22px 54px color-mix(in srgb,var(--text) 12%,transparent);filter:none;transform-style:preserve-3d;transform-origin:center center;will-change:transform}
+.portrait-frame:before{content:"";position:absolute;z-index:-1;inset:12px -13px -13px 12px;border:1px solid var(--line-strong);background:var(--panel)}
+.portrait-frame:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,color-mix(in srgb,var(--bg) 26%,transparent));pointer-events:none}
+.portrait-image{object-fit:cover;object-position:center 31%;filter:grayscale(1) contrast(1.07);clip-path:none;animation:none;-webkit-mask-image:none;mask-image:none;transform-origin:center center;will-change:auto}
+.portrait-crosshair{position:absolute;top:-13px;right:-15px;z-index:2;color:var(--text);font:17px/1 var(--mono),monospace;pointer-events:none}
+.portrait-caption{display:flex;justify-content:space-between;gap:10px;padding:13px 0 0;color:var(--muted);font:9px/1.5 var(--mono),monospace;letter-spacing:.075em}
+.portrait-glow{inset:-12% -18% -5%;z-index:-1;opacity:.7}
+.portrait-depth-shadow{z-index:-1;left:8%;bottom:-5%;width:84%;height:22%;opacity:.48}
+@media(max-width:700px){.portrait-composition{padding-top:13px}.portrait-overline{font-size:7px;margin-bottom:7px}.portrait-caption{flex-direction:row;align-items:flex-start;padding-top:9px;font-size:7px}}
+@media(prefers-reduced-motion:reduce){.hero-portrait-wrap{animation:none!important;transform:none!important}.portrait-stage,.portrait-frame,.portrait-image,.portrait-glow,.portrait-depth-shadow{transform:none!important;transition:none!important;animation:none!important;will-change:auto}}
+
+/* Keep the framed portrait completely still for every input type. */
+.hero-portrait-wrap,.hero-portrait-wrap.is-portrait-active{animation:none!important;transform:none!important}
+.portrait-stage{perspective:none;transform:none;touch-action:auto;cursor:default}
+.portrait-frame,.hero-portrait-wrap:hover .portrait-frame{transform:none!important;transition:none!important;will-change:auto}
+.portrait-frame:before,.hero-portrait-wrap:hover .portrait-frame:before{transform:none;transition:none}
+.portrait-caption,.portrait-crosshair{opacity:1;animation:none;transform:none}
+.portrait-glow,.portrait-depth-shadow{display:none;transform:none;animation:none;transition:none;will-change:auto}
+@media(hover:hover) and (pointer:fine){.portrait-stage{cursor:default}}
 
 /* Guided scroll presentation: masked headings, drawn rules and staggered content reveals. */
 .mask-line{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
@@ -487,3 +485,6 @@ html[data-theme="light"] .portrait-shadow{opacity:.2}
 @keyframes cv-sheen{0%{transform:translateX(-130%)}35%,100%{transform:translateX(230%)}}
 @keyframes cv-drop{0%,100%{transform:translateY(-1px)}50%{transform:translateY(3px)}}
 @media(prefers-reduced-motion:reduce){.button-cv,.button-cv:after,.button-cv-icon svg,.hero-name-caret,.hero-name-rule{animation:none!important}.button-cv:after{display:none}}
+.badge-in-progress{display:inline-block;padding:1px 7px;border:1px solid currentColor;border-radius:999px;font-size:.92em;letter-spacing:.06em;text-transform:uppercase}
+/* Keep the hero actions on the first screen: scale the headline and portrait with viewport height, and never clip the hero. */
+@media(min-width:701px){.hero{height:auto;min-height:min(860px,100svh);overflow:visible;padding-top:clamp(84px,13svh,116px)}.hero h1{font-size:clamp(44px,min(7.8vw,10.5svh),122px)}.hero-portrait-wrap{max-width:min(460px,calc((100svh - 300px)*.78));justify-self:end}}

@@ -159,7 +159,7 @@ const translations: Record<Language, Record<string, string>> = {
     "about.mono": "UNE APPROCHE D'INGÉNIEUR DE TERRAIN",
     "about.p1": "J'évolue à la croisée de l'IA générative et de l'ingénierie des systèmes — concevant des architectures agentiques, intégrant des modèles de langage et menant des pipelines de machine learning de la théorie au déploiement.",
     "about.p2": "Fort d'un socle solide en mathématiques appliquées, je m'attache à comprendre le comportement des modèles et à garantir la robustesse des systèmes opérationnels.",
-    "about.aside": "Élève-ingénieur de 3e année en Mathématiques Appliquées & Modélisation à l'ENSIT, menant en parallèle un Master de Recherche en Data Science.",
+    "about.aside": "Élève-ingénieur de 3e année en Mathématiques Appliquées & Modélisation à l'ENSIT, menant en parallèle un Master de Recherche en Science des Données.",
     "about.languages": "LANGUES",
     "about.languagesVal": "Arabe Natif · Anglais Intermédiaire · Français Intermédiaire",
     "about.location": "TUNIS, TUNISIE",

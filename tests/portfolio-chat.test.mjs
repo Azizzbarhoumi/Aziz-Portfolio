@@ -77,7 +77,7 @@ test("section intent promotes the relevant chunk and removes unrelated near-ties
 });
 
 test("a broad portfolio projects query retrieves every project chunk", async () => {
-  const knowledge = ["AgriConnect", "Data Extraction Tool at ProVerdy", "NeuroLearn AI", "City Brain Convergence", "FakeGuard AI", "Emotion Recognition from Speech"]
+  const knowledge = ["AgriConnect", "Data Extraction Tool at ProVerdy", "NeuroLearn AI", "CardioAgent-Ops", "FakeGuard AI", "Emotion Recognition from Speech"]
     .map((name) => `### ${name}\n\nA project description for ${name}.`).join("\n\n");
   const fetcher = async (_url, options) => {
     const { input } = JSON.parse(options.body);
@@ -86,7 +86,7 @@ test("a broad portfolio projects query retrieves every project chunk", async () 
   };
   const results = await retrieveKnowledge("What projects has Aziz worked on?", knowledge, { apiKey: "test-only", provider: "qwen", model: "all-projects-test", fetcher });
   assert.equal(results.length, 6);
-  assert.deepEqual(results.map(({ section }) => section), ["AgriConnect", "Data Extraction Tool at ProVerdy", "NeuroLearn AI", "City Brain Convergence", "FakeGuard AI", "Emotion Recognition from Speech"]);
+  assert.deepEqual(results.map(({ section }) => section), ["AgriConnect", "Data Extraction Tool at ProVerdy", "NeuroLearn AI", "CardioAgent-Ops", "FakeGuard AI", "Emotion Recognition from Speech"]);
 });
 
 test("Gemini embeddings distinguish indexed documents from search queries", async () => {

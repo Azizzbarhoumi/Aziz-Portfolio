@@ -34,6 +34,8 @@ export type Project = {
   result: string;
   category: string;
   status: "Case study" | "Summary only";
+  /** Shown as an "In progress" badge next to the status. */
+  inProgress?: boolean;
   technologies: string[];
   myRole?: string;
   screenshots?: ProjectScreenshot[];
@@ -130,37 +132,40 @@ export const projects: Project[] = [
     },
   },
   {
-    slug: "city-brain-convergence",
+    slug: "cardioagent-ops",
     number: "03",
-    title: "City Brain Convergence",
-    subtitle: "Agentic AI for smart cities",
+    title: "CardioAgent-Ops",
+    subtitle: "Agentic MLOps platform for heart sound diagnosis",
     year: "2026",
-    summary: "An agentic AI system that monitors digital-twin sensor streams, detects urban incidents, and triggers targeted responses.",
-    problem: "Continuously monitor urban sensor streams to detect incidents and support rapid emergency response.",
+    summary: "An end-to-end system that classifies phonocardiogram (PCG) heart sounds as normal or abnormal, served as an agentic MLOps platform with an LLM that explains each prediction.",
+    problem: "Abnormal heart sounds must be flagged reliably, so models have to be compared fairly and the whole pipeline has to be reproducible, deployable and explainable.",
     built: [
-      "Engineered a multi-agent system using Agent-to-Agent (A2A) protocols to monitor digital-twin sensor streams.",
-      "Detected incidents including accidents, fires, traffic, and flooding.",
-      "Autonomously triggered targeted physical and digital actuators for response.",
+      "Built a PCG pipeline on PASCAL and PhysioNet recordings resampled to 2000 Hz, and benchmarked five model families: Decision Tree on MFCC, SVM (RBF and linear), a custom 2D CNN on Mel spectrograms, and VGG16 transfer learning with a frozen backbone.",
+      "Evaluated under patient-grouped 3-fold cross-validation with versioned split manifests, selecting models by recall on the abnormal class; runs tracked in MLflow and the model exported to ONNX.",
+      "Served the system as 6 Docker Compose services (LLM server, vector DB, audio engine, LangGraph agent orchestrator, API gateway, MLflow server) with pytest tests and GitHub Actions CI/CD.",
+      "Added a QLoRA fine-tuned LLM with RAG to explain predictions, and a React \"patient monitor\" web app for analysis and benchmark review.",
     ],
-    result: "Autonomous multi-agent system for real-time incident detection and rapid response.",
-    category: "Agentic AI · Smart cities",
+    result: "Best test balanced accuracy of 0.81 (SVM RBF). Data Mining & ML project at ENSIT, in progress.",
+    category: "Agentic MLOps · Healthcare AI",
     status: "Case study",
-    myRole: "Agentic Systems Engineer — designed multi-agent A2A protocols for real-time digital-twin sensor monitoring and emergency actuator triggering.",
-    technologies: ["Multi-agent AI", "A2A", "Digital twins", "AI agents", "Actuators"],
-    links: { githubUrl: "https://github.com/Azizzbarhoumi" },
+    inProgress: true,
+    myRole: "ML & MLOps Engineer — built the PCG classification pipeline and model benchmark, the MLflow/ONNX workflow, the Dockerized agentic services and the RAG explanation layer.",
+    technologies: ["Python", "TensorFlow/Keras", "scikit-learn", "MLflow", "ONNX", "Docker", "FastAPI", "LangGraph", "RAG", "QLoRA", "React"],
+    links: { githubUrl: "https://github.com/Azizzbarhoumi/CardioAgent-Ops" },
     fr: {
-      title: "City Brain Convergence",
-      subtitle: "IA agentique pour villes intelligentes & jumeaux numériques",
-      summary: "Système d'IA agentique surveillant en temps réel les flux de capteurs d'un jumeau numérique urbain, détectant les incidents critiques et activant des réponses automatisées.",
-      problem: "Surveiller en continu les flux de capteurs urbains massifs pour détecter immédiatement les incidents et piloter les secours en temps réel.",
+      title: "CardioAgent-Ops",
+      subtitle: "Plateforme MLOps agentique pour le diagnostic des bruits cardiaques",
+      summary: "Système de bout en bout qui classe les bruits cardiaques (phonocardiogrammes, PCG) comme normaux ou anormaux, servi comme plateforme MLOps agentique avec un LLM qui explique chaque prédiction.",
+      problem: "Les bruits cardiaques anormaux doivent être détectés de façon fiable : les modèles doivent être comparés équitablement et tout le pipeline doit être reproductible, déployable et explicable.",
       built: [
-        "Architecture multi-agents reposant sur des protocoles Agent-to-Agent (A2A) pour l'analyse des flux capteurs de jumeaux numériques.",
-        "Détection en temps réel des incidents urbains majeurs (accidents, départs de feu, congestions, inondations).",
-        "Déclenchement autonome d'actionneurs physiques et numériques ciblés pour l'intervention d'urgence.",
+        "Pipeline PCG sur les enregistrements PASCAL et PhysioNet rééchantillonnés à 2000 Hz, avec un benchmark de cinq familles de modèles : arbre de décision sur MFCC, SVM (RBF et linéaire), CNN 2D sur spectrogrammes Mel et transfert VGG16 à backbone gelé.",
+        "Évaluation en validation croisée à 3 plis groupée par patient avec manifestes de découpage versionnés, sélection des modèles selon le rappel de la classe anormale ; suivi des runs dans MLflow et export du modèle en ONNX.",
+        "Système servi par 6 services Docker Compose (serveur LLM, base vectorielle, moteur audio, orchestrateur d'agents LangGraph, passerelle API, serveur MLflow), avec tests pytest et CI/CD GitHub Actions.",
+        "LLM affiné par QLoRA avec RAG pour expliquer les prédictions, et application web React « patient monitor » pour l'analyse et la revue des benchmarks.",
       ],
-      result: "Système multi-agents autonome pour la détection d'incidents en temps réel et l'intervention rapide.",
-      category: "IA Agentique · Smart Cities",
-      myRole: "Ingénieur Systèmes Agentiques — conception de l'architecture multi-agents Agent-to-Agent (A2A) pour la surveillance des flux capteurs de jumeaux numériques et l'activation des réponses d'urgence.",
+      result: "Meilleure balanced accuracy en test : 0,81 (SVM RBF). Projet Data Mining & ML à l'ENSIT, en cours.",
+      category: "MLOps agentique · IA santé",
+      myRole: "Ingénieur ML & MLOps — pipeline de classification PCG et benchmark des modèles, workflow MLflow/ONNX, services agentiques dockerisés et couche d'explication RAG.",
     },
   },
   {
@@ -274,7 +279,7 @@ export const projects: Project[] = [
 const featuredProjectOrder = [
   "agriconnect",
   "neurolearn-ai",
-  "city-brain-convergence",
+  "cardioagent-ops",
   "fakeguard-ai",
   "emotion-recognition-speech",
   "proverdy-data-extraction",
